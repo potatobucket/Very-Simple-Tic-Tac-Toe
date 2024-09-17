@@ -20,7 +20,7 @@ func _ready():
 		add_child(cellInstance)
 		cellInstance.selfIndex = cell
 		cellInstance.cellClicked.connect(_on_cell_clicked.bind())
-		cellInstance.set_position(Vector2(cellSize * xIterations, cellSize * yIterations))
+		cellInstance.set_position(Vector2((cellSize * xIterations) + 20, (cellSize * yIterations) + 20))
 		if xIterations == 2:
 			yIterations += 1
 		xIterations = (xIterations + 1) % 3
@@ -38,7 +38,7 @@ func check_for_winning_row():
 				row[0].background.set_modulate(Color(0, 155, 0))
 				row[1].background.set_modulate(Color(0, 155, 0))
 				row[2].background.set_modulate(Color(0, 155, 0))
-				print("You won the game!")
+				return true
 
 func check_for_winning_column():
 	var columns = [[cells[0], cells[3], cells[6]],
@@ -50,7 +50,7 @@ func check_for_winning_column():
 				column[0].background.set_modulate(Color(0, 155, 0))
 				column[1].background.set_modulate(Color(0, 155, 0))
 				column[2].background.set_modulate(Color(0, 155, 0))
-				print("You won the game!")
+				return true
 
 func check_for_winning_diagonal():
 	var diagonals = [[cells[0], cells[4], cells[8]],
@@ -61,7 +61,7 @@ func check_for_winning_diagonal():
 				diagonal[0].background.set_modulate(Color(0, 155, 0))
 				diagonal[1].background.set_modulate(Color(0, 155, 0))
 				diagonal[2].background.set_modulate(Color(0, 155, 0))
-				print("You won the game!")
+				return true
 
 func check_for_stalemate():
 	var fullCells = 0
@@ -71,7 +71,21 @@ func check_for_stalemate():
 	if fullCells >= 9:
 		for cell in cells:
 			cell.background.set_modulate(Color(155, 0, 0))
+		return true
+
+func is_game_over():
+	if check_for_winning_row():
+		print("You won the game!")
+		reset_game()
+	elif check_for_winning_column():
+		print("You won the game!")
+		reset_game()
+	elif check_for_winning_diagonal():
+		print("You won the game!")
+		reset_game()
+	elif check_for_stalemate():
 		print("You tied the game!")
+		reset_game()
 
 func _on_cell_clicked(selfIndex):
 	if cells[selfIndex].isEmpty == true:
@@ -82,10 +96,16 @@ func _on_cell_clicked(selfIndex):
 			cells[selfIndex].value = "x"
 		elif player == 1:
 			cells[selfIndex].value = "o"
-		check_for_winning_row()
-		check_for_winning_column()
-		check_for_winning_diagonal()
-		check_for_stalemate()
+		is_game_over()
 		player = (player + 1) % 2
 	else:
 		print("That's already taken, man!")
+
+func reset_game():
+	await get_tree().create_timer(2.5).timeout
+	cells.clear()
+	for child in get_children():
+		child.free()
+	xIterations = 0
+	yIterations = 0
+	_ready()
