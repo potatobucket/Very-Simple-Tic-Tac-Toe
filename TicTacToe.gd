@@ -8,6 +8,8 @@ var cellScene = load("res://board_cell.tscn")
 var cellSize = 256
 var cells = []
 
+var gameOverScreen = load("res://game_over.tscn")
+
 var player = 0
 var gameRunning = true
 
@@ -29,6 +31,8 @@ func _ready():
 	for child in get_children():
 		cells.append(child)
 	cells.pop_front()
+	var gameOver = gameOverScreen.instantiate()
+	add_child(gameOver)
 
 func check_for_winning_row():
 	var rows = [[cells[0], cells[1], cells[2]],
@@ -80,17 +84,22 @@ func check_for_stalemate():
 		return true
 
 func is_game_over():
+	var gameOverLabel = get_children()[-1].gameOverLabel
 	if check_for_winning_row():
 		print("You won the game!")
+		gameOverLabel.show()
 		reset_game()
 	elif check_for_winning_column():
 		print("You won the game!")
+		gameOverLabel.show()
 		reset_game()
 	elif check_for_winning_diagonal():
 		print("You won the game!")
+		gameOverLabel.show()
 		reset_game()
 	elif check_for_stalemate():
 		print("You tied the game!")
+		gameOverLabel.show()
 		reset_game()
 
 func _on_cell_clicked(selfIndex):
