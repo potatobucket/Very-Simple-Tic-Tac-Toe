@@ -9,8 +9,10 @@ var cellSize = 256
 var cells = []
 
 var player = 0
+var gameRunning = true
 
 func _ready():
+	gameRunning = true
 	var textureRect = TextureRect.new()
 	add_child(textureRect)
 	textureRect.set_texture(load("res://Untitled.png"))
@@ -38,6 +40,7 @@ func check_for_winning_row():
 				row[0].background.set_modulate(Color(0, 155, 0))
 				row[1].background.set_modulate(Color(0, 155, 0))
 				row[2].background.set_modulate(Color(0, 155, 0))
+				gameRunning = false
 				return true
 
 func check_for_winning_column():
@@ -50,6 +53,7 @@ func check_for_winning_column():
 				column[0].background.set_modulate(Color(0, 155, 0))
 				column[1].background.set_modulate(Color(0, 155, 0))
 				column[2].background.set_modulate(Color(0, 155, 0))
+				gameRunning = false
 				return true
 
 func check_for_winning_diagonal():
@@ -61,6 +65,7 @@ func check_for_winning_diagonal():
 				diagonal[0].background.set_modulate(Color(0, 155, 0))
 				diagonal[1].background.set_modulate(Color(0, 155, 0))
 				diagonal[2].background.set_modulate(Color(0, 155, 0))
+				gameRunning = false
 				return true
 
 func check_for_stalemate():
@@ -71,6 +76,7 @@ func check_for_stalemate():
 	if fullCells >= 9:
 		for cell in cells:
 			cell.background.set_modulate(Color(155, 0, 0))
+		gameRunning = false
 		return true
 
 func is_game_over():
@@ -88,18 +94,19 @@ func is_game_over():
 		reset_game()
 
 func _on_cell_clicked(selfIndex):
-	if cells[selfIndex].isEmpty == true:
-		cells[selfIndex].sprite.set_frame(player)
-		cells[selfIndex].sprite.show()
-		cells[selfIndex].isEmpty = false
-		if player == 0:
-			cells[selfIndex].value = "x"
-		elif player == 1:
-			cells[selfIndex].value = "o"
-		is_game_over()
-		player = (player + 1) % 2
-	else:
-		print("That's already taken, man!")
+	if gameRunning:
+		if cells[selfIndex].isEmpty == true:
+			cells[selfIndex].sprite.set_frame(player)
+			cells[selfIndex].sprite.show()
+			cells[selfIndex].isEmpty = false
+			if player == 0:
+				cells[selfIndex].value = "x"
+			elif player == 1:
+				cells[selfIndex].value = "o"
+			is_game_over()
+			player = (player + 1) % 2
+		else:
+			print("That's already taken, man!")
 
 func reset_game():
 	await get_tree().create_timer(2.5).timeout
